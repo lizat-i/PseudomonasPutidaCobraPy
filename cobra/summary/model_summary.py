@@ -181,10 +181,12 @@ class ModelSummary(Summary):
 
         # Create production table from producing fluxes or zero fluxes where the
         # metabolite is a product in the reaction.
-        is_produced = (flux["flux"] > 0) | ((flux["flux"] == 0) & (flux["factor"] > 0))
+        is_produced = (flux["flux"] > 0) | (
+            (flux["flux"] == 0) & (flux["factor"] > 0))
         if fva is not None:
             self.uptake_flux = flux.loc[
-                is_produced, ["flux", "minimum", "maximum", "reaction", "metabolite"]
+                is_produced, ["flux", "minimum",
+                              "maximum", "reaction", "metabolite"]
             ].copy()
         else:
             self.uptake_flux = flux.loc[
@@ -193,10 +195,12 @@ class ModelSummary(Summary):
 
         # Create consumption table from consuming fluxes or zero fluxes where the
         # metabolite is a substrate in the reaction.
-        is_consumed = (flux["flux"] < 0) | ((flux["flux"] == 0) & (flux["factor"] < 0))
+        is_consumed = (flux["flux"] < 0) | (
+            (flux["flux"] == 0) & (flux["factor"] < 0))
         if fva is not None:
             self.secretion_flux = flux.loc[
-                is_consumed, ["flux", "minimum", "maximum", "reaction", "metabolite"]
+                is_consumed, ["flux", "minimum",
+                              "maximum", "reaction", "metabolite"]
             ].copy()
         else:
             self.secretion_flux = flux.loc[
@@ -208,6 +212,7 @@ class ModelSummary(Summary):
     def _display_flux(
         self, frame: pd.DataFrame, names: bool, element: str, threshold: float
     ) -> pd.DataFrame:
+        # .sort_values(by='C-Flux',ascending=False):
         """
         Transform a flux data frame for display.
 
@@ -260,17 +265,17 @@ class ModelSummary(Summary):
 
         if "minimum" in frame.columns and "maximum" in frame.columns:
             frame["range"] = list(
-                frame[["minimum", "maximum"]].itertuples(index=False, name=None)
+                frame[["minimum", "maximum"]].itertuples(
+                    index=False, name=None)
             )
             return frame[
-                [
-                    "metabolite",
-                    "reaction",
-                    "flux",
-                    "range",
-                    element_num,
-                    element_percent,
-                ]
+                ["metabolite",
+                 "reaction",
+                 "flux",
+                 "range",
+                 element_num,
+                 element_percent,
+                 ]
             ]
         else:
             return frame[

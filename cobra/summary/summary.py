@@ -163,5 +163,6 @@ class Summary(ABC):
         )
 
     def to_frame(self) -> pd.DataFrame:
+        #print('ola'*200)
         """Return the a data frame representation of the summary."""
         return self._flux.copy()
