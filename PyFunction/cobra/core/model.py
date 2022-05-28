@@ -97,6 +97,7 @@ class Model(Object):
             self.reactions = DictList()  # A list of cobra.Reactions
             self.metabolites = DictList()  # A list of cobra.Metabolites
             self.groups = DictList()  # A list of cobra.Groups
+            self.VarNAme = None
             # genes based on their ids {Gene.id: Gene}
             self._compartments = {}
             self._contexts = []
@@ -1178,7 +1179,7 @@ class Model(Object):
         else:
             raise ValueError("Unknown objective direction '{}'.".format(value))
 
-    def summary(self, solution=None, fva=None):
+    def summary(self, solution=None, fva=None, threshold = None):
         """
         Create a summary of the exchange fluxes of the model.
 

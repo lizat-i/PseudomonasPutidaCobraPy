@@ -1,7 +1,6 @@
 __author__ = "The cobrapy core development team."
 __version__ = "0.25.0"
 
-
 from cobra.core import (
     Configuration,
     DictList,
