@@ -281,6 +281,79 @@ class ModelSummary(Summary):
             return frame[
                 ["metabolite", "reaction", "flux", element_num, element_percent]
             ]
+            
+            
+
+    def _display_internal_flux( self, frame: pd.DataFrame, names: bool, element: str, threshold: float) -> pd.DataFrame:
+            # .sort_values(by='C-Flux',ascending=False):
+            """
+            Transform a flux data frame for display.
+
+            Parameters
+            ----------
+            frame : pandas.DataFrame
+                Either the producing or the consuming fluxes.
+            names : bool
+                Whether or not elements should be displayed by their common names.
+            element : str
+                The atomic element to summarize fluxes for.
+            threshold : float
+                Hide fluxes below the threshold from being displayed.
+
+            Returns
+            -------
+            pandas.DataFrame
+                The transformed pandas DataFrame with flux percentages and reaction
+                definitions.
+
+            """
+            if "minimum" in frame.columns and "maximum" in frame.columns:
+                frame = frame.loc[
+                    (frame["flux"].abs() >= threshold)
+                    | (frame["minimum"].abs() >= threshold)
+                    | (frame["maximum"].abs() >= threshold),
+                    :,
+                ].copy()
+            else:
+                frame = frame.loc[frame["flux"].abs() >= threshold, :].copy()
+
+            metabolites = {m.id: m for m in self._boundary_metabolites}
+
+            element_num = f"{element}-Number"
+            frame[element_num] = [
+                metabolites[met_id].elements.get(element, 0)
+                for met_id in frame["metabolite"]
+            ]
+            element_percent = f"{element}-Flux"
+            frame[element_percent] = frame[element_num] * frame["flux"].abs()
+            total = frame[element_percent].sum()
+            if total > 0.0:
+                frame[element_percent] /= total
+            frame[element_percent] = [f"{x:.2%}" for x in frame[element_percent]]
+
+            if names:
+                frame["metabolite"] = [
+                    metabolites[met_id].name for met_id in frame["metabolite"]
+                ]
+
+            if "minimum" in frame.columns and "maximum" in frame.columns:
+                frame["range"] = list(
+                    frame[["minimum", "maximum"]].itertuples(
+                        index=False, name=None)
+                )
+                return frame[
+                    ["metabolite",
+                    "reaction",
+                    "flux",
+                    "range",
+                    element_num,
+                    element_percent,
+                    ]
+                ]
+            else:
+                return frame[
+                    ["metabolite", "reaction", "flux", element_num, element_percent]
+                ]
 
     @staticmethod
     def _string_table(frame: pd.DataFrame, float_format: str, column_width: int) -> str:
