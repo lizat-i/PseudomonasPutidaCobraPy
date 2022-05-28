@@ -1,9 +1,13 @@
 import pandas as pd
+import cobra
 
 def reformatHTML(solutionHTLM):
+  pass
   return pd.DataFrame
 
+## will be used in the Class
 def createOutput(model):
+  pass
   df2 = pd.DataFrame(
     {
     "A": 1.0,
@@ -15,14 +19,13 @@ def createOutput(model):
 )
   return df2
 
+## Function imports models as name model file pairs
+
 def ImportFunction(nameList):
     mainPATH                        = '/Users/ivanlizat/Documents/devel/folderForGit/PseudomonasPutidaCobraPy'
     relativModelPATH = mainPATH + '/MatlabExportedModels'
     modelDict = {}
     for name in nameList:
-        modelDict[ "{0}".format(name.removesuffix(".xml"))] = pyf.cobra.io.read_sbml_model(
+        modelDict[ "{0}".format(name.removesuffix(".xml"))] = cobra.io.read_sbml_model(
             relativModelPATH + '/' + str(name))
     return modelDict
-
-def helloW():
-  print(pyf.func2.addForHello())
