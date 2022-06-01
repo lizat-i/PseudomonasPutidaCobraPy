@@ -212,7 +212,6 @@ class ModelSummary(Summary):
     def _display_flux(
         self, frame: pd.DataFrame, names: bool, element: str, threshold: float
     ) -> pd.DataFrame:
-        # .sort_values(by='C-Flux',ascending=False):
         """
         Transform a flux data frame for display.
 
@@ -282,8 +281,7 @@ class ModelSummary(Summary):
                 ["metabolite", "reaction", "flux", element_num, element_percent]
             ]
             
-            
-
+    '''
     def _display_internal_flux( self, frame: pd.DataFrame, names: bool, element: str, threshold: float) -> pd.DataFrame:
             # .sort_values(by='C-Flux',ascending=False):
             """
@@ -354,6 +352,7 @@ class ModelSummary(Summary):
                 return frame[
                     ["metabolite", "reaction", "flux", element_num, element_percent]
                 ]
+        '''
 
     @staticmethod
     def _string_table(frame: pd.DataFrame, float_format: str, column_width: int) -> str:
@@ -554,3 +553,43 @@ class ModelSummary(Summary):
             f"<h4>Secretion</h4>"
             f"{secretion}"
         )
+
+    def to_DataFrame_custom(
+        self,
+        names: bool = False,
+        element: str = "C",
+        threshold: Optional[float] = None,
+        float_format: str = ".4G",
+    ) -> str:
+        """
+        Return a rich HTML representation of the model summary.
+
+        Parameters
+        ----------
+        names : bool, optional
+            Whether or not elements should be displayed by their common names
+            (default False).
+        element : str, optional
+            The atomic element to summarize uptake and secretion for (default 'C').
+        threshold : float, optional
+            Hide fluxes below the threshold from being displayed. If no value is
+            given, the model tolerance is used (default None).
+        float_format : str, optional
+            Format string for floats (default '.4G').
+
+        Returns
+        -------
+        res
+            The summary formatted as HTML.
+
+        """
+        threshold = self._normalize_threshold(threshold)
+
+
+        res = {
+        'treshold' : self._normalize_threshold(threshold),
+        'uptake'   : self._display_flux(self.uptake_flux, names, element, threshold),
+        'secretion': self._display_flux(self.secretion_flux, names, element, threshold)
+                }
+        
+        return  res

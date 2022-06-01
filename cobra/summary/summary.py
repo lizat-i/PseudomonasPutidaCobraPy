@@ -166,3 +166,41 @@ class Summary(ABC):
         #print('ola'*200)
         """Return the a data frame representation of the summary."""
         return self._flux.copy()
+    
+    @abstractmethod
+    def to_DataFrame_custom(
+        self,
+        names: bool = False,
+        threshold: Optional[float] = None,
+        float_format: str = ".4G",
+    ) -> str:
+        """
+        Return a rich HTML representation of the model summary.
+
+        Parameters
+        ----------
+        names : bool, optional
+            Whether or not elements should be displayed by their common names
+            (default False).
+        element : str, optional
+            The atomic element to summarize uptake and secretion for (default 'C').
+        threshold : float, optional
+            Hide fluxes below the threshold from being displayed. If no value is
+            given, the model tolerance is used (default None).
+        float_format : str, optional
+            Format string for floats (default '.4G').
+
+        Returns
+        -------
+        res
+            The summary formatted as HTML.
+
+        Returns
+        -------
+        str
+            The summary formatted as HTML.
+
+        """
+        raise NotImplementedError(
+            "This method needs to be implemented by the subclass."
+        )
