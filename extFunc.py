@@ -1,5 +1,6 @@
 import pandas as pd
 import cobra
+import random
 
 ## Function imports models as name model file pairs
 
@@ -49,4 +50,23 @@ class ModelComparison():
 
         return pd.concat(dfList,axis=0)
     
-    
+    def singleModellSummary(self,solutionDict,sortKrit='C-Flux', fvaDIr=None, nrRea=5 ,):
+        dfList, keyList = [], []
+        model = random.choice(list(self.modelDict.values()))
+        # implement sort arguments as variable sortArgument, direction
+        for sol in solutionDict.keys(): 
+            customDF = model.summary(solution=solutionDict[sol],fva=fvaDIr).to_DataFrame_custom()
+            theMatrix   = [
+        customDF['uptake'].sort_values(sortKrit,key=abs ,ascending=False).iloc[0:nrRea].reset_index(drop=True),
+        customDF['secretion'].sort_values(sortKrit,key=abs ,ascending=False).iloc[0:nrRea].reset_index(drop=True)
+                            ] 
+
+            modelFrame=pd.concat(
+                [pd.concat(theMatrix,
+                keys=['Uptake', 'Secretion'], axis=1)],
+                keys=[sol]
+                ) 
+            dfList.append(modelFrame)
+            keyList.append(model)
+            
+        return pd.concat(dfList,axis=0) 
