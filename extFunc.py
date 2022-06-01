@@ -22,32 +22,22 @@ class ModelComparison():
     input  = list of models
     '''
 
-    def __init__(self, modelDict: "modelDict", **kwargs):
+    def __init__(self, modelDict: "modelDict",  **kwargs):
         self.modelDict = modelDict
-        self.solutionDict = {}
-        self.summaryDict = {}
-        self.dataFrameDict = {}
-        self.generate()
+        #self.generate()
 
     # collect the objects of interest
-    def generate(self):
-        for model in self.modelDict.keys():
-            self.solutionDict[model] = self.modelDict[model].optimize()
-            self.summaryDict[model] = self.modelDict[model].summary(
-                solution=self.solutionDict[model], fva=.99)
-            self.dataFrameDict[model] = {
-                "uptake":   pd.read_html(self.summaryDict[model].to_html())[0].sort_values('C-Flux', ascending=False),
-                "secretion":   pd.read_html(self.summaryDict[model].to_html())[1].sort_values('C-Flux', ascending=False)
-            }
 
-    def mySummary(self,nrRea=3,sortArgument=None,direction = None):
+
+    def multiModellSummary(self,solution=None,sortKrit='flux', fvaDIr=None, nrRea=5 ,):
         dfList, keyList = [], []
         # implement sort arguments as variable sortArgument, direction
         for model in self.modelDict.keys(): 
+            customDF = self.modelDict[model].summary(solution=solution,fva=fvaDIr).to_DataFrame_custom()
             theMatrix   = [
-                self.dataFrameDict[model]['uptake'].iloc[0:nrRea].reset_index(drop=True),
-                self.dataFrameDict[model]['secretion'].iloc[0:nrRea].reset_index(drop=True) 
-                ] 
+        customDF['uptake'].sort_values(sortKrit, ascending=False).iloc[0:nrRea].reset_index(drop=True),
+        customDF['secretion'].sort_values(sortKrit, ascending=False).iloc[0:nrRea].reset_index(drop=True)
+                            ] 
         
             modelFrame=pd.concat(
                 [pd.concat(theMatrix,
@@ -58,3 +48,5 @@ class ModelComparison():
             keyList.append(model)
 
         return pd.concat(dfList,axis=0)
+    
+    

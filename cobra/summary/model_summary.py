@@ -255,7 +255,9 @@ class ModelSummary(Summary):
         total = frame[element_percent].sum()
         if total > 0.0:
             frame[element_percent] /= total
-        frame[element_percent] = [f"{x:.2%}" for x in frame[element_percent]]
+        #frame[element_percent] = [f"{x:.2}" for x in frame[element_percent]]
+        #changed the display style of the flux values for them to be sorted
+        frame[element_percent] = [x*100 for x in frame[element_percent]]
 
         if names:
             frame["metabolite"] = [
@@ -562,7 +564,7 @@ class ModelSummary(Summary):
         float_format: str = ".4G",
     ) -> str:
         """
-        Return a rich HTML representation of the model summary.
+        Return a rich dictionary of dataframes representation of the model summary.
 
         Parameters
         ----------
@@ -587,6 +589,7 @@ class ModelSummary(Summary):
 
 
         res = {
+        'objective': self._string_objective(names),
         'treshold' : self._normalize_threshold(threshold),
         'uptake'   : self._display_flux(self.uptake_flux, names, element, threshold),
         'secretion': self._display_flux(self.secretion_flux, names, element, threshold)
