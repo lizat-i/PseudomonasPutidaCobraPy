@@ -119,12 +119,8 @@ class ModelSummary(Summary):
             logger.info("Performing flux variability analysis.")
             fva = flux_variability_analysis(
                 model=model,
-                #### REACTIONS
-                #reaction_list=model.reactions,
-                reaction_list=model.boundary
-                ###
-
-                #fraction_of_optimum=fva,
+                reaction_list=model.reactions,
+                fraction_of_optimum=fva,
             )
         if coefficients:
             self._objective: Dict["Reaction", float] = {
@@ -142,11 +138,8 @@ class ModelSummary(Summary):
                 Reaction(id="Expression", name="Expression"): float("nan")
             }
             self._objective_value: float = float("nan")
-            
         self._boundary: List["Reaction"] = [
-            #### reaction ### hier veränder damit das Programm die Summary für die internen Flüße macht
-           rxn.copy() for rxn in sorted(model.boundary, key=attrgetter("id"))
-           #rxn.copy() for rxn in sorted(model.reactions, key=attrgetter("id"))
+            rxn.copy() for rxn in sorted(model.reactions, key=attrgetter("id"))
         ]
         self._boundary_metabolites: List["Metabolite"] = [
            met.copy() for rxn in self._boundary for met in rxn.metabolites
@@ -159,10 +152,6 @@ class ModelSummary(Summary):
             columns=["reaction", "metabolite", "factor", "flux"],
             index=[r.id for r in self._boundary],
         )
-        
-        #for rxn, met in zip(self._boundary, self._boundary_metabolites):
-        #    print("rxn =" + str(rxn) , "met =" + str(met.id) )
-       
         # Scale fluxes by stoichiometric coefficient.
         flux["flux"] *= flux["factor"]
 
