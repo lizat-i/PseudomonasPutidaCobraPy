@@ -1209,6 +1209,36 @@ class Model(Object):
 
         return ModelSummary(model=self, solution=solution, fva=fva)
 
+    def internal(self, solution=None, fva=None, threshold = None):
+        """
+        Create a interanl of the exchange fluxes of the model.
+
+        Parameters
+        ----------
+        solution : cobra.Solution, optional
+            A previous model solution to use for generating the summary. If
+            ``None``, the summary method will generate a parsimonious flux
+            distribution (default None).
+        fva : pandas.DataFrame or float, optional
+            Whether or not to include flux variability analysis in the output.
+            If given, `fva` should either be a previous FVA solution matching the
+            model or a float between 0 and 1 representing the fraction of the
+            optimum objective to be searched (default None).
+
+        Returns
+        -------
+        cobra.ModelSummary
+
+        See Also
+        --------
+        Reaction.summary
+        Metabolite.summary
+
+        """
+        from cobra.internal import InternalSummary
+
+        return InternalSummary(model=self, solution=solution, fva=fva)
+
     def __enter__(self):
         """Record all future changes to the model, undoing them when a call to
         __exit__ is received"""

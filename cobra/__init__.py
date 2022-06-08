@@ -17,4 +17,5 @@ from cobra import io
 from cobra import medium
 from cobra import sampling
 from cobra import summary
+from cobra import internal
 from cobra.util import show_versions

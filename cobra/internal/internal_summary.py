@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-class ModelSummary(Summary):
+class InternalSummary(Summary):
     """
     Define the model summary.
 
@@ -119,8 +119,8 @@ class ModelSummary(Summary):
             logger.info("Performing flux variability analysis.")
             fva = flux_variability_analysis(
                 model=model,
-                reaction_list=model.reactions,
-                fraction_of_optimum=fva,
+                reaction_list       =   model.reactions,
+
             )
         if coefficients:
             self._objective: Dict["Reaction", float] = {
@@ -138,9 +138,10 @@ class ModelSummary(Summary):
                 Reaction(id="Expression", name="Expression"): float("nan")
             }
             self._objective_value: float = float("nan")
+            
         self._boundary: List["Reaction"] = [
-            rxn.copy() for rxn in sorted(model.reactions, key=attrgetter("id"))
-        ]
+           rxn.copy() for rxn in sorted(model.boundary, key=attrgetter("id"))
+            ]
         self._boundary_metabolites: List["Metabolite"] = [
            met.copy() for rxn in self._boundary for met in rxn.metabolites
         ]
@@ -152,7 +153,7 @@ class ModelSummary(Summary):
             columns=["reaction", "metabolite", "factor", "flux"],
             index=[r.id for r in self._boundary],
         )
-        # Scale fluxes by stoichiometric coefficient.
+
         flux["flux"] *= flux["factor"]
 
         if fva is not None:
@@ -282,7 +283,77 @@ class ModelSummary(Summary):
             return frame[
                 ["metabolite", "reaction", "flux", element_num, element_percent]
             ]
-            
+ ###################
+ #costum internal flux display function
+ ###################
+    def _display_flux_internal(
+        self, frame: pd.DataFrame, names: bool, element: str, threshold: float
+    ) -> pd.DataFrame:
+        """
+        Transform a flux data frame for display.
+
+        Parameters
+        ----------
+        frame : pandas.DataFrame
+            Either the producing or the consuming fluxes.
+        names : bool
+            Whether or not elements should be displayed by their common names.
+        element : str
+            The atomic element to summarize fluxes for.
+        threshold : float
+            Hide fluxes below the threshold from being displayed.
+
+        Returns
+        -------
+        pandas.DataFrame
+            The transformed pandas DataFrame with flux percentages and reaction
+            definitions.
+
+        """
+        if "minimum" in frame.columns and "maximum" in frame.columns:
+            frame = frame.copy()
+        else:
+            frame = frame.copy()
+
+        metabolites = {m.id: m for m in self._boundary_metabolites}
+
+        element_num = f"{element}-Number"
+        frame[element_num] = [
+            metabolites[met_id].elements.get(element, 0)
+            for met_id in frame["metabolite"]
+        ]
+        element_percent = f"{element}-Flux"
+        frame[element_percent] = frame[element_num] * frame["flux"].abs()
+        total = frame[element_percent].sum()
+        if total > 0.0:
+            frame[element_percent] /= total
+        #frame[element_percent] = [f"{x:.2}" for x in frame[element_percent]]
+        #changed the display style of the flux values for them to be sorted
+        frame[element_percent] = [x*100 for x in frame[element_percent]]
+
+        if names:
+            frame["metabolite"] = [
+                metabolites[met_id].name for met_id in frame["metabolite"]
+            ]
+
+        if "minimum" in frame.columns and "maximum" in frame.columns:
+            frame["range"] = list(
+                frame[["minimum", "maximum"]].itertuples(
+                    index=False, name=None)
+            )
+            return frame[
+                ["metabolite",
+                "reaction",
+                "flux",
+                "range",
+                element_num,
+                element_percent,
+                ]
+            ]
+        else:
+            return frame[
+                ["metabolite", "reaction", "flux", element_num, element_percent]
+            ]        
 
     @staticmethod
     def _string_table(frame: pd.DataFrame, float_format: str, column_width: int) -> str:
@@ -523,4 +594,45 @@ class ModelSummary(Summary):
         'secretion': self._display_flux(self.secretion_flux, names, element, threshold)
                 }
         
+        return  res
+          
+    def to_DataFrame_internal(
+            self,
+            names: bool = False,
+            element: str = "C",
+            threshold: Optional[float] = None,
+            float_format: str = ".4G",
+            ) -> str:       
+        """
+        Return a rich dictionary of dataframes representation of the model summary.
+
+        Parameters
+        ----------
+        names : bool, optional
+            Whether or not elements should be displayed by their common names
+            (default False).
+        element : str, optional
+            The atomic element to summarize uptake and secretion for (default 'C').
+        threshold : float, optional
+            Hide fluxes below the threshold from being displayed. If no value is
+            given, the model tolerance is used (default None).
+        float_format : str, optional
+            Format string for floats (default '.4G').
+
+        Returns
+        -------
+        res
+            The summary formatted as HTML.
+
+        """
+        threshold = self._normalize_threshold(threshold)
+
+
+        res = {
+        'objective': self._string_objective(names),
+        'treshold' : self._normalize_threshold(threshold),
+        'uptake'   : self._display_flux_internal(self.uptake_flux, names, element, threshold),
+        'secretion': self._display_flux_internal(self.secretion_flux, names, element, threshold)
+                }
+
         return  res
