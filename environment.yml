@@ -1,6 +1,10 @@
 name: hiwi
 channels:
-  - defaults
+	- esri
+	- scitools
+	- obspy
+	- conda-forge
+	- defaults
 dependencies:
   - defaults/osx-64::jbig==2.1=h4d881f8_0
   - defaults/osx-64::ripgrep==12.1.1=0
