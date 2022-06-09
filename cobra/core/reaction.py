@@ -1140,6 +1140,7 @@ class Reaction(Object):
         metabolite_id : str or cobra.Metabolite
 
         """
+        
         if isinstance(metabolite_id, Metabolite):
             return self._metabolites[metabolite_id]
 

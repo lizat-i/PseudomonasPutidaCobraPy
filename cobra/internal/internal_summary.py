@@ -1,6 +1,7 @@
 """Provide the model summary class."""
 
 
+import sys
 import logging
 from operator import attrgetter
 from typing import TYPE_CHECKING, Dict, List, Optional, Union
@@ -119,7 +120,7 @@ class InternalSummary(Summary):
             logger.info("Performing flux variability analysis.")
             fva = flux_variability_analysis(
                 model=model,
-                reaction_list       =   model.reactions,
+                reaction_list       =   model.boundary,
 
             )
         if coefficients:
@@ -145,15 +146,16 @@ class InternalSummary(Summary):
         self._boundary_metabolites: List["Metabolite"] = [
            met.copy() for rxn in self._boundary for met in rxn.metabolites
         ]
+        
         flux = pd.DataFrame(
             data=[
-                (rxn.id, met.id, rxn.get_coefficient(met.id), solution[rxn.id])
+                (rxn.id, met.id,rxn.get_coefficient(met.id), solution[rxn.id])
                 for rxn, met in zip(self._boundary, self._boundary_metabolites)
             ],
-            columns=["reaction", "metabolite", "factor", "flux"],
+            columns=["reaction","metabolite",  "factor", "flux"],
             index=[r.id for r in self._boundary],
         )
-
+            
         flux["flux"] *= flux["factor"]
 
         if fva is not None:
