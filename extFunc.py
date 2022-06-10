@@ -5,7 +5,8 @@ import random
 ## Function imports models as name model file pairs
 
 def ImportFunction(nameList):
-    mainPATH                        = '/home/ivan/Documents/devel/PseudomonasPutidaCobraPy'
+   # mainPATH                        = '/home/ivan/Documents/devel/PseudomonasPutidaCobraPy'
+    mainPATH                        = '/Users/ivanlizat/Documents/devel/folderForGit/PseudomonasPutidaCobraPy'
     relativModelPATH = mainPATH + '/MatlabExportedModels'
     modelDict = {}
     for name in nameList:
