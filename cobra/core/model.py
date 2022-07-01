@@ -963,6 +963,13 @@ class Model(Object):
         Reactions that either have no substrate or product.
         """
         return [rxn for rxn in self.reactions if rxn.boundary]
+    
+    @property
+    def boundaryCustom(self):
+        """Boundary reactions in the model.
+        Reactions that either have no substrate or product.
+        """
+        return [rxn.id for rxn in self.reactions if rxn.boundary]
 
     @property
     def exchanges(self):

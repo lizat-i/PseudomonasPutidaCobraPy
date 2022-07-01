@@ -820,6 +820,17 @@ class Reaction(Object):
         return len(self.metabolites) == 1 and not (self.reactants and self.products)
 
     @property
+    def boundary(self) -> bool:
+        """Whether or not this reaction is an exchange reaction.
+
+        Returns
+        -------
+        bool:   `True` if the reaction has either no products or reactants.
+        """
+        return len(self.metabolites) == 1 and not (self.reactants and self.products)
+    
+    
+    @property
     def model(self) -> Optional["Model"]:
         """Return the model the reaction is a part of.
 
@@ -858,6 +869,7 @@ class Reaction(Object):
             False).
         """
         self._model.remove_reactions([self], remove_orphans=remove_orphans)
+        
 
     def delete(self, remove_orphans: bool = False) -> None:
         """Remove the reaction from a model.
