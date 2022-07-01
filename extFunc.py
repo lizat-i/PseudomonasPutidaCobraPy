@@ -1,6 +1,7 @@
 import pandas as pd
 import cobra
 import random
+import numpy as np
 
 ## Function imports models as name model file pairs
 
@@ -10,9 +11,17 @@ def ImportFunction(nameList):
     relativModelPATH = mainPATH + '/MatlabExportedModels'
     modelDict = {}
     for name in nameList:
-        modelDict[ "{0}".format(name.removesuffix(".xml"))] = cobra.io.read_sbml_model(
-            relativModelPATH + '/' + str(name))
+        modelDict[ "{0}".format(name.removesuffix(".xml"))] = reset_max_min(cobra.io.read_sbml_model(
+            relativModelPATH + '/' + str(name)))
     return modelDict
+
+def reset_max_min(model):
+    for reaction in model.reactions:
+        if abs(reaction.lower_bound)>1000:
+            reaction.lower_bound= 1000*np.sign(reaction.lower_bound)
+        if abs(reaction.upper_bound)>1000:
+            reaction.upper_bound =  1000*np.sign(reaction.upper_bound)
+    return model
 
 ## Model Comparison Class
 
@@ -71,3 +80,4 @@ class ModelComparison():
             keyList.append(model)
             
         return pd.concat(dfList,axis=0) 
+    
